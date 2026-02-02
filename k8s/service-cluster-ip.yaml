@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-cluster-ip
+  namespace: demo-aks-ariel
+spec:
+  selector:
+    app: nginx-deployment
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+  type: ClusterIP
