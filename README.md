@@ -1,5 +1,129 @@
-🌐 How to Access
-----------------
+# Kubernetes Assignment – DevOps 04
+
+This repository demonstrates basic Kubernetes operations, deployment, autoscaling, and troubleshooting in a managed cloud environment (AKS).
+
+All resources are deployed into a dedicated namespace following least-privilege principles.
+
+---
+
+## 🔹 Task 1: Cluster Access & Basic Validation
+
+### Context & Connectivity
+The cluster was accessed using a valid kubeconfig and context.
+
+```bash
+copy code
+kubectl config current-context
+kubectl cluster-info
+```
+
+### Node Health
+
+```bash
+copy code
+kubectl get nodes
+```
+All nodes are reachable and in Ready state.
+
+### Namespace Listing
+
+```bash
+cpoy code
+kubectl get ns
+```
+
+## 🔹 Task 2: Namespace & RBAC
+
+### Namespace
+
+```bash
+copy code
+kubectl apply -f k8s/namespace.yaml
+```
+
+Namespace created:
+
+```bash
+copy code
+demo-aks-ariel
+```
+### Service Account & RBAC
+```bash
+copy code
+kubectl apply -f k8s/rbac.yaml
+```
+RBAC is scoped to the namespace and allows **only**:
+
+* get, list, watch
+
+* resources: pods, services, deployments.apps
+
+### Authorization Checks
+ Allowed (namespaced):
+
+```bash
+copy code
+kubectl auth can-i list pods \
+  -n demo-aks-ariel \
+  --as=system:serviceaccount:demo-aks-ariel:sa-demo
+```
+Denied (cluster-wide):
+
+```bash
+copy code
+kubectl auth can-i list nodes \
+  --as=system:serviceaccount:demo-aks-ariel:sa-demo
+```
+
+## 🔹 Task 3: Application Deployment
+
+An nginx application is deployed as a Kubernetes Deployment
+
+```bash
+copy code
+kubectl apply -f k8s/deployment.yaml
+```
+Deployment properties:
+
+*  replicas: 2
+
+* readiness probe
+
+* liveness probe
+
+* CPU & memory requests and limits
+
+* consistent labels and selectors
+
+### Validation
+
+```bash
+copy code
+kubectl get deploy,pods -n demo-aks-ariel
+```
+All pods reach `2/2 Ready` and remain stable.
+
+## Task 4: Service & Ingress Exposure
+
+### Service
+
+```bash
+copy code
+kubectl apply -f k8s/service-cluster-ip.yaml
+```
+A ClusterIP service exposes the Deployment internally.
+
+### Ingress
+
+```bash
+copy code
+kubectl apply -f k8s/ingress.yaml
+```
+
+NGINX Ingress Controller is used to expose the application externally.
+
+
+### 🌐 How to Access
 
 ### Endpoint
 
@@ -10,7 +134,6 @@ The application is exposed via NGINX Ingress at:
 (Replace `<INGRESS_EXTERNAL_IP>` with the value from\
 `kubectl get ingress -n demo-aks-ariel`)
 
-* * * * *
 
 ### Example curl Command
 
@@ -19,26 +142,30 @@ The application is exposed via NGINX Ingress at:
 ### Expected Response
 
 ```html
-
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Welcome to nginx!</title>
-</head>
-<body>
-  <h1>Welcome to nginx!</h1>
-</body>
-</html>
-
+Welcome to nginx!
 ```
 
 This confirms that traffic is successfully routed through the Ingress → Service → Pods.
 
+## 🔹 Task 5: Autoscaling (HPA)
 
-📈 Autoscaling Test Evidence
-----------------------------
+HPA Configuration
 
-### HPA Status (Metrics Populated)
+```bash
+kubectl apply -f k8s/hpa.yaml
+```
+HPA settings:
+
+* minReplicas: 2
+
+* maxReplicas: 5
+
+* CPU target: 50%
+
+
+### 📈 Autoscaling Test Evidence
+
+#### HPA Status (Metrics Populated)
 
 The Horizontal Pod Autoscaler is active and receiving CPU metrics (not `unknown`).
 
@@ -93,27 +220,9 @@ This sustained traffic increased CPU usage on the nginx pods, triggering the HPA
 
 * * * * *
 
-## Basic Observability & Debugging Runbook
+## 🔍 Task 6: Basic Observability & Debugging Runbook
 
-This runbook demonstrates how to observe, diagnose, and troubleshoot a Kubernetes workload using native Kubernetes tooling.
-
-Namespace used in examples:
-
-demo-aks-ariel
-
-makefile
-
-Copy code
-
-Application:
-
-nginx-deployment
-
-yaml
-
-Copy code
-
----
+This runbook uses Kubernetes-native tooling to troubleshoot issues.
 
 ### 1️⃣ Check Pod Health and Status
 
