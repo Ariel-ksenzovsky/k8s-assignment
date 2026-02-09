@@ -18,7 +18,9 @@ The application is exposed via NGINX Ingress at:
 
 ### Expected Response
 
-`<!DOCTYPE html>
+```html
+
+<!DOCTYPE html>
 <html>
 <head>
   <title>Welcome to nginx!</title>
@@ -26,7 +28,9 @@ The application is exposed via NGINX Ingress at:
 <body>
   <h1>Welcome to nginx!</h1>
 </body>
-</html>`
+</html>
+
+```
 
 This confirms that traffic is successfully routed through the Ingress → Service → Pods.
 
@@ -42,8 +46,12 @@ The Horizontal Pod Autoscaler is active and receiving CPU metrics (not `unknown`
 
 Example output:
 
-`NAME        REFERENCE                     TARGETS    MINPODS   MAXPODS   REPLICAS
-nginx-hpa   Deployment/nginx-deployment   2%/75%     2         5         2`
+```
+
+NAME        REFERENCE                     TARGETS    MINPODS   MAXPODS   REPLICAS
+nginx-hpa   Deployment/nginx-deployment   2%/75%     2         5         2
+
+```
 
 This confirms that CPU metrics are available and the HPA can calculate utilization.
 
@@ -107,7 +115,7 @@ Copy code
 
 ---
 
-## 1️⃣ Check Pod Health and Status
+### 1️⃣ Check Pod Health and Status
 
 Verify pod state and restart behavior.
 
@@ -115,7 +123,11 @@ Verify pod state and restart behavior.
 
 kubectl get pods -n demo-aks-ariel
 
+```
+
 What to look for:
+
+```
 
 Running → healthy
 
@@ -125,17 +137,23 @@ Pending → scheduling/resource issue
 
 READY 0/1 → readiness failing
 
-2️⃣ Inspect Pod Details (Readiness / Liveness)
+```
+
+### 2️⃣ Inspect Pod Details (Readiness / Liveness)
 
 Describe the pod to inspect probe failures and container status.
 
-bash
+```bash
 
 Copy code
 
 kubectl describe pod <POD_NAME> -n demo-aks-ariel
 
+```
+
 What to look for:
+
+```
 
 Events showing:
 
@@ -147,25 +165,33 @@ Restart count increasing
 
 Last termination reason / exit code
 
-3️⃣ View Application Logs
+```
+
+### 3️⃣ View Application Logs
 
 Access container logs directly via Kubernetes.
 
-bash
+```bash
 
 Copy code
 
 kubectl logs <POD_NAME> -n demo-aks-ariel
 
+```
+
 If the pod is restarting:
 
-bash
+```bash
 
 Copy code
 
 kubectl logs <POD_NAME> -n demo-aks-ariel --previous
 
+```
+
 What to look for:
+
+```
 
 Application errors
 
@@ -173,17 +199,23 @@ Startup failures
 
 Configuration or port binding issues
 
-4️⃣ View Namespace Events
+```
+
+### 4️⃣ View Namespace Events
 
 Events often explain failures that logs do not.
 
-bash
+```bash
 
 Copy code
 
 kubectl get events -n demo-aks-ariel --sort-by=.metadata.creationTimestamp
 
+```
+
 What to look for:
+
+```
 
 Probe failures
 
@@ -191,29 +223,38 @@ Image pull errors
 
 Scheduling or resource warnings
 
-5️⃣ Debug Service Routing (Endpoints)
+```
+
+### 5️⃣ Debug Service Routing (Endpoints)
 
 Confirm the Service is correctly connected to Pods.
 
-bash
+```bash
 
 Copy code
 
 kubectl get svc nginx-cluster-ip -n demo-aks-ariel
 
-kubectl get endpoints nginx-cluster-ip -n demo-aks-ariel
+kubectl get endpoints nginx-cluster-ip -n 
+demo-aks-ariel
+
+```
 
 What to look for:
+
+```
 
 Endpoints should list Pod IPs
 
 Empty endpoints → selector mismatch or pods not Ready
 
-6️⃣ Verify Service Selector Matches Pod Labels
+```
+
+### 6️⃣ Verify Service Selector Matches Pod Labels
 
 Ensure the Service selector matches pod labels.
 
-bash
+```bash
 
 Copy code
 
@@ -221,15 +262,21 @@ kubectl get pods -n demo-aks-ariel --show-labels
 
 kubectl get svc nginx-cluster-ip -n demo-aks-ariel -o yaml
 
+```
+
 What to look for:
+
+```
 
 Service selector labels must exactly match pod labels
 
-7️⃣ Debug Ingress Provisioning
+```
+
+### 7️⃣ Debug Ingress Provisioning
 
 Check Ingress status and controller events.
 
-bash
+```bash
 
 Copy code
 
@@ -237,8 +284,11 @@ kubectl get ingress -n demo-aks-ariel -o wide
 
 kubectl describe ingress nginx-ingress -n demo-aks-ariel
 
+```
+
 What to look for:
 
+``` 
 ADDRESS populated → ingress controller is working
 
 Events such as:
@@ -249,11 +299,13 @@ no endpoints available
 
 ingress class mismatch
 
-8️⃣ Check Ingress Controller Health
+```
+
+### 8️⃣ Check Ingress Controller Health
 
 Verify the ingress controller is running and has an external IP.
 
-bash
+```bash
 
 Copy code
 
@@ -261,17 +313,23 @@ kubectl get pods -n ingress-nginx
 
 kubectl get svc -n ingress-nginx
 
+```
+
 What to look for:
+
+```
 
 Controller pods in Running state
 
 Controller Service of type LoadBalancer with EXTERNAL-IP
 
-9️⃣ Test Service Connectivity from Inside the Cluster
+```
+
+### 9️⃣ Test Service Connectivity from Inside the Cluster
 
 Run a temporary debug pod to validate DNS and networking.
 
-bash
+```bash
 
 Copy code
 
@@ -281,31 +339,43 @@ kubectl -n demo-aks-ariel run curl
 
   -it --rm -- sh
 
+```
+
 Inside the pod:
 
-sh
+```sh
 
 Copy code
 
 curl -I http://nginx-cluster-ip
 
+```
+
 What to look for:
+
+```
 
 HTTP 200/301/404 → Service routing works
 
 Timeout → Service/endpoint issue
 
-🔟 Validate External Access (Ingress)
+```
+
+### 🔟 Validate External Access (Ingress)
 
 Test the public endpoint from outside the cluster.
 
-bash
+```bash
 
 Copy code
 
 curl http://<INGRESS_EXTERNAL_IP>
 
+```
+
 What to look for:
+
+```
 
 Successful HTTP response confirms:
 
@@ -313,7 +383,9 @@ Ingress → Service → Pod routing works
 
 Timeout / connection refused → ingress or service issue
 
-✅ Failure Scenarios Covered
+```
+
+## ✅ Failure Scenarios Covered
 
 This runbook allows an engineer to triage:
 
