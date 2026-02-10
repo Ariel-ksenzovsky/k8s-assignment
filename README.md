@@ -12,7 +12,6 @@ All resources are deployed into a dedicated namespace following least-privilege 
 The cluster was accessed using a valid kubeconfig and context.
 
 ```bash
-copy code
 kubectl config current-context
 kubectl cluster-info
 ```
@@ -20,7 +19,6 @@ kubectl cluster-info
 ### Node Health
 
 ```bash
-copy code
 kubectl get nodes
 ```
 All nodes are reachable and in Ready state.
@@ -28,7 +26,6 @@ All nodes are reachable and in Ready state.
 ### Namespace Listing
 
 ```bash
-cpoy code
 kubectl get ns
 ```
 
@@ -37,19 +34,16 @@ kubectl get ns
 ### Namespace
 
 ```bash
-copy code
 kubectl apply -f k8s/namespace.yaml
 ```
 
 Namespace created:
 
 ```bash
-copy code
 demo-aks-ariel
 ```
 ### Service Account & RBAC
 ```bash
-copy code
 kubectl apply -f k8s/rbac.yaml
 ```
 RBAC is scoped to the namespace and allows **only**:
@@ -62,7 +56,6 @@ RBAC is scoped to the namespace and allows **only**:
  Allowed (namespaced):
 
 ```bash
-copy code
 kubectl auth can-i list pods \
   -n demo-aks-ariel \
   --as=system:serviceaccount:demo-aks-ariel:sa-demo
@@ -70,7 +63,6 @@ kubectl auth can-i list pods \
 Denied (cluster-wide):
 
 ```bash
-copy code
 kubectl auth can-i list nodes \
   --as=system:serviceaccount:demo-aks-ariel:sa-demo
 ```
@@ -80,7 +72,6 @@ kubectl auth can-i list nodes \
 An nginx application is deployed as a Kubernetes Deployment
 
 ```bash
-copy code
 kubectl apply -f k8s/deployment.yaml
 ```
 Deployment properties:
@@ -98,7 +89,6 @@ Deployment properties:
 ### Validation
 
 ```bash
-copy code
 kubectl get deploy,pods -n demo-aks-ariel
 ```
 All pods reach `2/2 Ready` and remain stable.
@@ -108,7 +98,6 @@ All pods reach `2/2 Ready` and remain stable.
 ### Service
 
 ```bash
-copy code
 kubectl apply -f k8s/service-cluster-ip.yaml
 ```
 A ClusterIP service exposes the Deployment internally.
@@ -116,7 +105,6 @@ A ClusterIP service exposes the Deployment internally.
 ### Ingress
 
 ```bash
-copy code
 kubectl apply -f k8s/ingress.yaml
 ```
 
@@ -254,8 +242,6 @@ Describe the pod to inspect probe failures and container status.
 
 ```bash
 
-Copy code
-
 kubectl describe pod <POD_NAME> -n demo-aks-ariel
 
 ```
@@ -282,8 +268,6 @@ Access container logs directly via Kubernetes.
 
 ```bash
 
-Copy code
-
 kubectl logs <POD_NAME> -n demo-aks-ariel
 
 ```
@@ -292,7 +276,6 @@ If the pod is restarting:
 
 ```bash
 
-Copy code
 
 kubectl logs <POD_NAME> -n demo-aks-ariel --previous
 
@@ -315,8 +298,6 @@ Configuration or port binding issues
 Events often explain failures that logs do not.
 
 ```bash
-
-Copy code
 
 kubectl get events -n demo-aks-ariel --sort-by=.metadata.creationTimestamp
 
