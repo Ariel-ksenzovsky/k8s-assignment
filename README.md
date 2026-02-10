@@ -321,7 +321,6 @@ Confirm the Service is correctly connected to Pods.
 
 ```bash
 
-Copy code
 
 kubectl get svc nginx-cluster-ip -n demo-aks-ariel
 
@@ -346,8 +345,6 @@ Ensure the Service selector matches pod labels.
 
 ```bash
 
-Copy code
-
 kubectl get pods -n demo-aks-ariel --show-labels
 
 kubectl get svc nginx-cluster-ip -n demo-aks-ariel -o yaml
@@ -367,8 +364,6 @@ Service selector labels must exactly match pod labels
 Check Ingress status and controller events.
 
 ```bash
-
-Copy code
 
 kubectl get ingress -n demo-aks-ariel -o wide
 
@@ -397,7 +392,6 @@ Verify the ingress controller is running and has an external IP.
 
 ```bash
 
-Copy code
 
 kubectl get pods -n ingress-nginx
 
@@ -421,8 +415,6 @@ Run a temporary debug pod to validate DNS and networking.
 
 ```bash
 
-Copy code
-
 kubectl -n demo-aks-ariel run curl
 
   --image=curlimages/curl:latest
@@ -434,8 +426,6 @@ kubectl -n demo-aks-ariel run curl
 Inside the pod:
 
 ```sh
-
-Copy code
 
 curl -I http://nginx-cluster-ip
 
@@ -456,8 +446,6 @@ Timeout → Service/endpoint issue
 Test the public endpoint from outside the cluster.
 
 ```bash
-
-Copy code
 
 curl http://<INGRESS_EXTERNAL_IP>
 
